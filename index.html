@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Smart Language Interpreter</title>
+
+
+
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+
+
+
+:root {
+
+    --primary: #6366f1;
+
+    --accent: #a855f7;
+
+    --glass: rgba(255,255,255,0.8);
+
+    --text: #1e293b;
+
+    --success: #22c55e;
+
+}
+
+
+
+* {
+
+    box-sizing: border-box;
+
+    transition: all 0.25s ease;
+
+}
+
+
+
+body {
+
+    margin: 0;
+
+    font-family: 'Plus Jakarta Sans', sans-serif;
+
+    min-height: 100vh;
+
+    background: #0f172a;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 20px;
+
+    overflow: hidden;
+
+    position: relative;
+
+}
+
+
+
+/* Animated background blob */
+
+.blob {
+
+    position: absolute;
+
+    width: 420px;
+
+    height: 420px;
+
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+
+    filter: blur(90px);
+
+    border-radius: 50%;
+
+    opacity: 0.4;
+
+    z-index: -1;
+
+    animation: move 18s infinite alternate ease-in-out;
+
+}
+
+
+
+@keyframes move {
+
+    from { transform: translate(-30%, -20%); }
+
+    to { transform: translate(30%, 20%); }
+
+}
+
+
+
+.container {
+
+    width: 100%;
+
+    max-width: 580px;
+
+    background: var(--glass);
+
+    backdrop-filter: blur(18px);
+
+    padding: 42px;
+
+    border-radius: 32px;
+
+    border: 1px solid rgba(255,255,255,0.35);
+
+    box-shadow: 0 30px 60px rgba(0,0,0,0.35);
+
+}
+
+
+
+h2 {
+
+    text-align: center;
+
+    margin-bottom: 26px;
+
+    font-weight: 700;
+
+    background: linear-gradient(to right, #4f46e5, #9333ea);
+
+    -webkit-background-clip: text;
+
+    -webkit-text-fill-color: transparent;
+
+}
+
+
+
+label {
+
+    font-weight: 600;
+
+    font-size: 14px;
+
+    margin-top: 16px;
+
+    display: block;
+
+    color: #374151;
+
+}
+
+
+
+.lang-row {
+
+    display: flex;
+
+    gap: 14px;
+
+    margin-top: 10px;
+
+}
+
+
+
+select, textarea {
+
+    width: 100%;
+
+    padding: 16px;
+
+    border-radius: 18px;
+
+    border: 1px solid rgba(0,0,0,0.1);
+
+    background: rgba(255,255,255,0.65);
+
+    font-size: 15px;
+
+    outline: none;
+
+    color: var(--text);
+
+}
+
+
+
+select:focus, textarea:focus {
+
+    background: #fff;
+
+    border-color: var(--primary);
+
+    box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+
+}
+
+
+
+textarea {
+
+    resize: none;
+
+}
+
+
+
+.char-count {
+
+    text-align: right;
+
+    font-size: 12px;
+
+    color: #6b7280;
+
+    margin-top: 4px;
+
+}
+
+
+
+.btn-group {
+
+    display: grid;
+
+    grid-template-columns: 2fr 1fr 1fr;
+
+    gap: 12px;
+
+    margin-top: 22px;
+
+}
+
+
+
+button {
+
+    padding: 14px;
+
+    border-radius: 16px;
+
+    border: none;
+
+    cursor: pointer;
+
+    font-weight: 600;
+
+}
+
+
+
+.primary {
+
+    background: #111827;
+
+    color: #fff;
+
+}
+
+
+
+.primary:hover {
+
+    transform: translateY(-2px);
+
+    background: #000;
+
+}
+
+
+
+.primary.loading {
+
+    opacity: 0.6;
+
+    pointer-events: none;
+
+}
+
+
+
+.secondary {
+
+    background: rgba(255,255,255,0.85);
+
+    color: var(--text);
+
+    border: 1px solid rgba(0,0,0,0.1);
+
+}
+
+
+
+.secondary:hover {
+
+    background: #fff;
+
+}
+
+
+
+.output-box {
+
+    margin-top: 30px;
+
+    background: rgba(255,255,255,0.45);
+
+    border-radius: 22px;
+
+    padding: 22px;
+
+    min-height: 110px;
+
+    position: relative;
+
+    border: 1px solid rgba(255,255,255,0.5);
+
+}
+
+
+
+.output-label {
+
+    position: absolute;
+
+    top: -12px;
+
+    left: 20px;
+
+    background: var(--primary);
+
+    color: #fff;
+
+    padding: 4px 14px;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+
+
+.output {
+
+    margin-top: 10px;
+
+    font-weight: 500;
+
+    line-height: 1.6;
+
+}
+
+
+
+.output.success {
+
+    border-left: 6px solid var(--success);
+
+    padding-left: 12px;
+
+}
+
+
+
+.loading-bar {
+
+    height: 4px;
+
+    width: 0%;
+
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+
+    position: absolute;
+
+    bottom: 0;
+
+    left: 0;
+
+    border-radius: 0 0 22px 22px;
+
+}
+
+
+
+.translating .loading-bar {
+
+    width: 100%;
+
+    transition: width 1.5s ease-in-out;
+
+}
+
+</style>
+
+</head>
+
+
+
+<body>
+
+
+
+<div class="blob"></div>
+
+
+
+<div class="container">
+
+<h2>🌍 Smart Language Interpreter</h2>
+
+
+
+<label>Languages</label>
+
+<div class="lang-row">
+
+<select id="sourceLang">
+
+<option value="en">English</option>
+
+<option value="hi">Hindi</option>
+
+<option value="mr">Marathi</option>
+
+<option value="fr">French</option>
+
+<option value="es">Spanish</option>
+
+<option value="de">German</option>
+
+<option value="ja">Japanese</option>
+
+<option value="ko">Korean</option>
+
+<option value="zh">Chinese</option>
+
+<option value="it">Italian</option>
+
+</select>
+
+
+
+<select id="targetLang">
+
+<option value="en">English</option>
+
+<option value="hi">Hindi</option>
+
+<option value="mr">Marathi</option>
+
+<option value="fr">French</option>
+
+<option value="es">Spanish</option>
+
+<option value="de">German</option>
+
+<option value="ja">Japanese</option>
+
+<option value="ko">Korean</option>
+
+<option value="zh">Chinese</option>
+
+<option value="it">Italian</option>
+
+</select>
+
+</div>
+
+
+
+<label>Input (Text or Speech)</label>
+
+<textarea id="inputText" rows="4" placeholder="Type text or click 🎤 Speak..." oninput="updateCount()"></textarea>
+
+<div class="char-count" id="charCount">0 characters</div>
+
+
+
+<div class="btn-group">
+
+<button class="primary" id="translateBtn" onclick="translateText()">Translate</button>
+
+<button class="secondary" onclick="startSpeech()">🎤</button>
+
+<button class="secondary" onclick="speakOutput()">🔊</button>
+
+</div>
+
+
+
+<div class="output-box" id="outputContainer">
+
+<span class="output-label">Translation</span>
+
+<div class="output" id="outputText">Your translation will appear here...</div>
+
+<div class="loading-bar"></div>
+
+</div>
+
+</div>
+
+
+
+<script>
+
+function updateCount() {
+
+    charCount.innerText = inputText.value.length + " characters";
+
+}
+
+
+
+function translateText() {
+
+    const btn = translateBtn;
+
+    const box = outputContainer;
+
+    const out = outputText;
+
+
+
+    box.classList.add("translating");
+
+    btn.classList.add("loading");
+
+    btn.innerText = "Working…";
+
+    out.classList.remove("success");
+
+    out.innerText = "";
+
+
+
+    fetch("/translate", {
+
+        method: "POST",
+
+        headers: { "Content-Type": "application/json" },
+
+        body: JSON.stringify({
+
+            text: inputText.value,
+
+            source_lang: sourceLang.value,
+
+            target_lang: targetLang.value
+
+        })
+
+    })
+
+    .then(res => res.json())
+
+    .then(data => {
+
+        out.innerText = data.translation;
+
+        out.classList.add("success");
+
+    })
+
+    .catch(() => {
+
+        out.innerText = "❌ Translation failed";
+
+    })
+
+    .finally(() => {
+
+        box.classList.remove("translating");
+
+        btn.classList.remove("loading");
+
+        btn.innerText = "Translate";
+
+    });
+
+}
+
+
+
+function startSpeech() {
+
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SR) return alert("Speech recognition not supported");
+
+
+
+    const r = new SR();
+
+    r.lang = sourceLang.value === "hi" ? "hi-IN" : "en-US";
+
+    r.onresult = e => inputText.value = e.results[0][0].transcript;
+
+    r.start();
+
+}
+
+
+
+function speakOutput() {
+
+    if (!outputText.innerText) return;
+
+    const u = new SpeechSynthesisUtterance(outputText.innerText);
+
+    speechSynthesis.cancel();
+
+    speechSynthesis.speak(u);
+
+}
+
+</script>
+
+
+
+</body>
+
+</html>
